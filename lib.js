@@ -1,4 +1,10 @@
- 
+if(!window.$){
+  window.$ = function $(id){
+    return document.getElementById(id);
+  }
+}
+
+
 String.prototype.lc=String.prototype.toLowerCase;
 String.prototype.uc=String.prototype.toUpperCase;
 String.prototype.code=String.prototype.charCodeAt;
