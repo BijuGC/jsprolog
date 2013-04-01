@@ -10,7 +10,7 @@ Author : Jan <logic@ioctl.org>
 
 -->
 <head>
-  <title> ioctl.org : jsprolog </title>
+  <title> Prolog in Javascript </title>
   <link rel="stylesheet" href="style.css">
   <script src=jsprolog.js></script>
 </head>
@@ -18,34 +18,6 @@ Author : Jan <logic@ioctl.org>
 
 
 <h1> Prolog in Javascript </h1>
-
-<p>	Here we collect the accumulated library functions of the previous versions.
-</p>
-
-<p>	This prolog is enhanced with the JavaScript callout capability though
-	a rudimentary external/3 call; see the arithmetic functions for examples.
-</p>
-
-<h2> Licensing and so on </h2>
-
-<p> These days the kids are all about the licenses. I typically get a request
-	or two every year from a keen undergrad who wants to turn this into
-	something interesting. Consider this code to be under a two-clause
-	(non-advertising) BSD-style license.
-</p>
-
-<p>	Having said that... I'm always interested to hear what people are up to
-	with this, so if you feel keen or want a natter, drop me a line:
-	logic@ioctl.org. I think that ideas are more important than kudos,
-	but if you want to credit then I won't blush (and I'm sure my employer
-	at the time I wrote this, the University of Bristol, wouldn't mind
-	you mentioning them).
-</p>
-
-<p>	Good luck!
-</p>
-
-<hr />
 
 <form name="rules" action="javascript:return false;"><p>
 <textarea cols="90" rows="40" name="rules"># Enter your ruleset in here.
@@ -115,7 +87,7 @@ tarTest(b).
 </textarea></p>
 </form>
 <form name="input" action="javascript:freeform(); //">
-<p>	Enter your query:
+<p>  Enter your query:
 </p>
 <p>	<input type="text" name="query" value="bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements" size="90" />
 </p>
@@ -129,6 +101,8 @@ tarTest(b).
 <textarea rows="40" cols="90" name="output"></textarea>
 </p>
 </form>
-
+Original Author <a href=http://ioctl.org/logic/prolog-latest>Jan</a> | 
+Forked by Biju GC |  
+Licensed under a two-clause (non-advertising) BSD-style license.
 </body>
 </html>
