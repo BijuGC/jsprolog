@@ -20,8 +20,11 @@ Author : Jan <logic@ioctl.org>
 
 
 <h1> Prolog in Javascript </h1>
-
-<form name="rules" action="javascript:return false;"><p>
+Layout : <a href="" onclick="return sidebysidelayout()">side by side</a>
+<table id=outerframe class=hide>
+<tr><td id=rightframe></td><td id=leftframe></td></tr>
+</table>
+<form id=rulesform name="rules" action="javascript:return false;"><p>
 <textarea cols="90" rows="40" name="rules"># Enter your ruleset in here.
 triple(sc, a, b).
 triple(sc, b, c).
@@ -88,6 +91,7 @@ tarTest(b).
 
 </textarea></p>
 </form>
+<div id=block2>
 <form name="input" action="javascript:freeform(); //">
 <p>  Enter your query:
 </p>
@@ -103,8 +107,11 @@ tarTest(b).
 <textarea rows="40" cols="90" name="output"></textarea>
 </p>
 </form>
+</div>
+<p>
 Original Author <a href=http://ioctl.org/logic/prolog-latest>Jan</a> | 
 Forked by Biju GC |  
 Licensed under a two-clause (non-advertising) BSD-style license.
+</p>
 </body>
 </html>
