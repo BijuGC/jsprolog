@@ -1,4 +1,5 @@
 jsprolog
 ========
 
-Prolog in Javascript 
+Prolog Interpreter in Javascript.
+http://bijugc.github.io/jsprolog
