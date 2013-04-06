@@ -3,20 +3,17 @@
 //         see 2-clause license at http://en.wikipedia.org/wiki/BSD_licenses
 // Author : Jan <logic@ioctl.org>
 
-function cls() {
-  document.output.output.value = "";
-}
-
-function print(str) {
-  document.output.output.value += str;
-}
+var cls, print;
 
 function freeform() {
+  print = env.print;
+  cls = env.cls
+  
   cls();
 
-  var rules = document.rules.rules.value;
-  var show = document.input.showparse.checked;
-  var query = document.input.query.value;
+  var rules = [env.getStdRules(), env.getConsultRules(), env.getRules()].join('\n\n\n') ;
+  var show = env.getShowparse();
+  var query = env.getQuery();
 
   print("Parsing rulesets.\n");
 
@@ -885,8 +882,7 @@ function External(thisTerm, goalList, environment, db, level, reportFunction) {
   //print("DEBUG: External/3 about to eval \""+r+"\"\n");
 
   var ret;
-  with(EvalContext)
-  ret = eval(r);
+  with(EvalContext) ret = eval(r);
 
   //print("DEBUG: External/3 got "+ret+" back\n");
 
@@ -946,8 +942,7 @@ function ExternalAndParse(thisTerm, goalList, environment, db, level, reportFunc
   //print("DEBUG: External/3 about to eval \""+r+"\"\n");
 
   var ret;
-  with(EvalContext)
-  ret = eval(r);
+  with(EvalContext) ret = eval(r);
 
   //print("DEBUG: External/3 got "+ret+" back\n");
 
