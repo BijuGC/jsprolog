@@ -1,4 +1,5 @@
 /* 
+File : index.css
 Author : BijuGC
 */
 
@@ -24,10 +25,6 @@ h1{
   font-size:120%;
 }
 
-.bigfont #query
-{
-  height:1.2em;
-}
 .hide {
   display:none;
 } 
@@ -104,12 +101,12 @@ h1{
 }
 
 .content2head{
-  height:80px;
+  height:100px;
 }
 
  .content2body{
   position:absolute;
-  top:82px;
+  top:102px;
   bottom:0px;
   left:0px;
   right:0px;
@@ -123,25 +120,26 @@ h1{
 
 #rules{
   height:100%;
-  width:100%
+  width:100%;
 }
 
 #stdrules{
   height:100%;
-  width:100%
+  width:100%;
 }
 
 #consultrules{
   height:100%;
-  width:100%
+  width:100%;
 }
 
 #output{
   height:100%;
-  width:100%
+  width:100%;
 }
 
 #query {
-  width:100%
+  height:50px;
+  width:100%;
 }
  
