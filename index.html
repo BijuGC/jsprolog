@@ -36,21 +36,7 @@
       </div>
 
       <div class=content1body>	  
-        <textarea id=stdrules class=hide></textarea>
-        <textarea id=consultrules class=hide></textarea>
-        <textarea id=rules>
-# Enter your ruleset in here.
-triple(sc, a, b).
-triple(sc, b, c).
-triple(sc, c, d).
-triple(sc, d, e).
-triple(sc, e, f).
-triple(sc, f, g).
-triple(type, sc, transitive).
-
-triple(P, X, Y) :- NOTTHIS triple(type, P, transitive), NOTTHIS triple(P, X, Z), triple(P, Z, Y).
-
-arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
+        <textarea id=stdrules class=hide>
 
 ### Accumulated standard library lives under here!
 
@@ -101,7 +87,34 @@ not(Term).
 # Standard prolog var/1
 var(X) :- bagof(l, varTest(X), [l, l]).
 varTest(a).
-tarTest(b).
+tarTest(b).            
+</textarea>
+        <textarea id=consultrules class=hide></textarea>
+        <textarea id=rules>
+
+# Enter your ruleset in here.
+
+
+
+
+
+
+
+
+
+
+# testing NOTTHIS
+triple(sc, a, b).
+triple(sc, b, c).
+triple(sc, c, d).
+triple(sc, d, e).
+triple(sc, e, f).
+triple(sc, f, g).
+triple(type, sc, transitive).
+
+triple(P, X, Y) :- NOTTHIS triple(type, P, transitive), NOTTHIS triple(P, X, Z), triple(P, Z, Y).
+
+arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
 
 </textarea>
       </div>	
