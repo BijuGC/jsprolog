@@ -1,31 +1,45 @@
 <!doctype html>
 <html>
-<!--
-
-Source : http://ioctl.org/logic/prolog-latest
-License : two-clause (non-advertising) BSD-style license.
-        see 2-clause license at http://en.wikipedia.org/wiki/BSD_licenses
-Author : Jan <logic@ioctl.org>
-
-
--->
 <head>
-  <title> Prolog in Javascript </title>
-  <link rel="stylesheet" href="style.css">
+  <title>Prolog Interpreter in Javascript</title>
+  <link href=style.css rel=stylesheet />
+  <link href=index.css rel=stylesheet />
   <script src=lib.js></script>
   <script src=jsprolog.js></script>
   <script src=index.js></script>
 </head>
-<body>
 
+<body class=longform>
+  <div class=header>
+    <h1>Prolog Interpreter in Javascript</h1>
 
-<h1> Prolog in Javascript </h1>
-Layout : <a href="" onclick="return sidebysidelayout()">side by side</a>
-<table id=outerframe class=hide>
-<tr><td id=rightframe></td><td id=leftframe></td></tr>
-</table>
-<form id=rulesform name="rules" action="javascript:return false;"><p>
-<textarea cols="90" rows="40" name="rules"># Enter your ruleset in here.
+    <div class=toolbar>
+      Layout: 
+	  <a id=sidebysidelink href="" onclick="return setSideBySide()">SideBySide</a>
+	  <a id=longformlink class=hide href="" onclick="return setLongForm()">LongForm</a>
+	  <br/>
+      Font size: 
+	  <a id=fontbiglink href="" onclick="return setBigFont()">Big</a>
+	  <a id=fontnormallink class=hide href="" onclick="return setNormalFont()">Normal</a><br/>
+    </div>
+  </div>
+
+  <div class=content>
+    <div class=content1>
+      <div class=content1head>
+		Show rules
+	    <label><input id=selectrule1 name=selectrules type=radio checked onchange="selectrulechange()" />User input</label>
+        <label><input id=selectrule2 name=selectrules type=radio onchange="selectrulechange()" />Std rules</label>
+        <label><input id=selectrule3 name=selectrules type=radio onchange="selectrulechange()" />Consult</label>
+        <button onclick="consult(); return false;">Consult</button>
+		<input id=consultfile class=hide type=file onchange="consultchange()" multiple />
+      </div>
+
+      <div class=content1body>	  
+        <textarea id=stdrules class=hide></textarea>
+        <textarea id=consultrules class=hide></textarea>
+        <textarea id=rules>
+# Enter your ruleset in here.
 triple(sc, a, b).
 triple(sc, b, c).
 triple(sc, c, d).
@@ -89,29 +103,29 @@ var(X) :- bagof(l, varTest(X), [l, l]).
 varTest(a).
 tarTest(b).
 
-</textarea></p>
-</form>
-<div id=block2>
-<form name="input" action="javascript:freeform(); //">
-<p>  Enter your query:
-</p>
-<p>	<input type="text" name="query" value="bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements" size="90" />
-</p>
-<p>
-	<input type="button" value="Run query" onclick="freeform(); return true;" />
-	<input type="checkbox" name="showparse" /> Show parse results
-</p>
-</form>
-<form name="output" action="javascript:return false;">
-<p>
-<textarea rows="40" cols="90" name="output"></textarea>
-</p>
-</form>
-</div>
-<p>
-Original Author <a href=http://ioctl.org/logic/prolog-latest>Jan</a> | 
-Forked by Biju GC |  
-Licensed under a two-clause (non-advertising) BSD-style license.
-</p>
+</textarea>
+      </div>	
+    </div>
+
+    <div class=content2>
+      <div class=content2head>
+        <label>Enter your query:<br/>
+        <input id=query type=text value="bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements"/></label>
+        <br/><button onclick="freeform(); return true;">Run query</button>
+		<label><input id=showparse type=checkbox /> Show parse results</label>
+      </div>
+
+      <div class=content2body>
+        <textarea id=output></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class=footer>
+    Original Author <a href=http://ioctl.org/logic/prolog-latest>Jan</a> |
+    <a href=http://bijugc.github.io/jsprolog/>Forked</a>
+	by Biju GC | Licensed under a two-clause (non-advertising) BSD-style
+    license.
+  </div>
 </body>
 </html>
