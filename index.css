@@ -1,0 +1,147 @@
+/* 
+Author : BijuGC
+*/
+
+body{
+  position:absolute;
+  top:0px;
+  bottom:0px;
+  left:0px;
+  right:0px;
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  -ms-text-size-adjust: none;  
+}
+
+h1{
+  margin-top:0px; 
+}
+	
+.bigfont,
+.bigfont textarea,
+.bigfont input
+{
+  font-size:120%;
+}
+
+.bigfont #query
+{
+  height:1.2em;
+}
+.hide {
+  display:none;
+} 
+
+.header{
+  position:absolute;
+  height:50px;
+  top:0px;
+  left:0px;
+  right:0px;
+}
+
+.footer{
+  position:absolute;
+  height:40px;
+  bottom:0px;
+  left:0px;
+  right:0px;
+}
+
+.content{
+  position:absolute;
+  top:52px;
+  bottom:42px;  
+  left:0px;
+  right:0px;  
+}
+
+
+
+.longform .content1{
+  position:absolute;
+  top:0px;
+  bottom:51%;  
+  left:0px;
+  right:0px;
+}
+
+.longform .content2{
+  position:absolute;
+  top:51%;
+  bottom:0px;  
+  left:0px;
+  right:0px;
+}
+
+
+.sidebyside .content1{
+  position:absolute;
+  top:0px;
+  bottom:0px;  
+  left:0px;
+  right:51%;
+}
+
+.sidebyside .content2{
+  position:absolute;
+  top:0px;
+  bottom:0px;  
+  left:51%;
+  right:0px;
+}
+
+.content1head{
+  height:30px;
+}
+
+.content1body{
+  position:absolute;
+  top:32px;
+  bottom:0px;
+  left:0px;
+  right:0px;
+}
+
+.content2head{
+  height:80px;
+}
+
+ .content2body{
+  position:absolute;
+  top:82px;
+  bottom:0px;
+  left:0px;
+  right:0px;
+}
+
+.toolbar{
+  position:absolute;
+  top:0px;
+  right:0px;
+}
+
+#rules{
+  height:100%;
+  width:100%
+}
+
+#stdrules{
+  height:100%;
+  width:100%
+}
+
+#consultrules{
+  height:100%;
+  width:100%
+}
+
+#output{
+  height:100%;
+  width:100%
+}
+
+#query {
+  width:100%
+}
+ 
