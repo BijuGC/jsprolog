@@ -1,9 +1,10 @@
+//Author : BijuGC
+
 if(!window.$){
   window.$ = function $(id){
     return document.getElementById(id);
   }
 }
-
 
 String.prototype.lc=String.prototype.toLowerCase;
 String.prototype.uc=String.prototype.toUpperCase;
@@ -40,7 +41,6 @@ Number.prototype.chr = function chr(){
 }
 ;
 
-
 Array.prototype.joinl = function joinl(){
   return this.join('\n');
 }
@@ -65,7 +65,6 @@ Array.prototype.joinc = function joinc(){
   return this.join(', ');
 }
 ;
-
 
 String.prototype.splitl = function splitl(){
   return this.split('\n');
@@ -129,7 +128,6 @@ if(!"".rtrim) {
     return this.replace(/\s+$/,'');
   } 
 }
-
 
 function now(str){
  if(str) return new Date(str);
