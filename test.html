@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+  <title>Prolog Interpreter in Javascript</title>
+  <link href=https://raw.github.com/BijuGC/jsprolog/master/style.css rel=stylesheet />
+  <link href=https://raw.github.com/BijuGC/jsprolog/master/index.css rel=stylesheet />
+  <script src=https://raw.github.com/BijuGC/jsprolog/master/lib.js></script>
+  <script src=https://raw.github.com/BijuGC/jsprolog/master/jsprolog.js></script>
+  <script src=https://raw.github.com/BijuGC/jsprolog/master/index.js></script>
+</head>
+
+<body class=longform>
+  <div class=header>
+    <h1>Prolog Interpreter in Javascript</h1>
+
+    <div class=toolbar>
+      Layout: 
+    <a id=sidebysidelink href="" onclick="return setSideBySide()">SideBySide</a>
+	  <a id=longformlink class=hide href="" onclick="return setLongForm()">LongForm</a>
+	  <br/>
+      Font size: 
+	  <a id=fontbiglink href="" onclick="return setBigFont()">Big</a>
+	  <a id=fontnormallink class=hide href="" onclick="return setNormalFont()">Normal</a><br/>
+    </div>
+  </div>
+
+  <div class=content>
+    <div class=content1>
+      <div class=content1head>
+		Show rules
+	    <label><input id=selectrule1 name=selectrules type=radio checked onchange="selectrulechange()" />User input</label>
+        <label><input id=selectrule2 name=selectrules type=radio onchange="selectrulechange()" />Std rules</label>
+        <label><input id=selectrule3 name=selectrules type=radio onchange="selectrulechange()" />Consult</label>
+        <button onclick="consult(); return false;">Consult</button>
+		<input id=consultfile class=hide type=file onchange="consultchange()" multiple />
+      </div>
+
+      <div class=content1body>	  
+        <textarea id=stdrules class=hide></textarea>
+        <textarea id=consultrules class=hide></textarea>
+        <textarea id=rules>
+# Enter your ruleset in here.
+triple(sc, a, b).
+triple(sc, b, c).
+triple(sc, c, d).
+triple(sc, d, e).
+triple(sc, e, f).
+triple(sc, f, g).
+triple(type, sc, transitive).
+
+triple(P, X, Y) :- NOTTHIS triple(type, P, transitive), NOTTHIS triple(P, X, Z), triple(P, Z, Y).
+
+arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
+
+### Accumulated standard library lives under here!
+
+# unification and ( x, y, z; w ) support
+
+unify(X, X).
+
+# ( a, b, c ) --> conjunction([a, b, c])
+conjunction([]).
+conjunction([X | Rest]) :- call(X), conjunction(Rest).
+
+# ( a; b; c ) --> disjunction([a, b, c])
+disjunction([X | Rest]) :- call(X).
+disjunction([X | Rest]) :- disjunction(Rest).
+
+# Arithmetic
+add(A, B, C) :- external("$1 + $2", [A, B], C).   # A + B = C, etc.
+sub(A, B, C) :- external("$1 - $2", [A, B], C).
+mul(A, B, C) :- external("$1 * $2", [A, B], C).
+div(A, B, C) :- external("$1 / $2", [A, B], C).
+
+# The canonical quicksort
+qsort([], []).
+qsort([X|Rest], Answer) :- partition(X, Rest, [], Before, [], After), qsort(Before, Bsort), qsort(After, Asort), append(Bsort, [X | Asort], Answer).
+
+partition(X, [], Before, Before, After, After).
+partition(X, [Y | Rest], B, [Y | Brest], A, Arest) :- leq(X, Y), partition(X, Rest, B, Brest, A, Arest).
+partition(X, [Y | Rest], B, Brest, A, [Y | Arest]) :- gtr(X, Y), partition(X, Rest, B, Brest, A, Arest).
+
+leq(X, Y) :- compare(X, Y, gt).
+leq(X, Y) :- compare(X, Y, eq).
+gtr(X, Y) :- compare(X, Y, lt).
+
+# Some list-processing stuff...
+append([], Z, Z).
+append([A|B], Z, [A|ZZ]) :- append(B, Z, ZZ).
+
+reverse([], []).
+reverse([A|B], Z) :- reverse(B, Brev), append(Brev, [A], Z).
+
+length([], 0).
+length([H|T], N) :- length(T, M), add(M, 1, N).
+
+# Standard prolog not/1
+not(Term) :- call(Term), !, fail.
+not(Term).
+
+# Standard prolog var/1
+var(X) :- bagof(l, varTest(X), [l, l]).
+varTest(a).
+tarTest(b).
+
+</textarea>
+      </div>	
+    </div>
+
+    <div class=content2>
+      <div class=content2head>
+        <label>Enter your query:<br/>
+        <input id=query type=text value="bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements"/></label>
+        <br/><button onclick="freeform(); return true;">Run query</button>
+		<label><input id=showparse type=checkbox /> Show parse results</label>
+      </div>
+
+      <div class=content2body>
+        <textarea id=output></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class=footer>
+    Original Author <a href=http://ioctl.org/logic/prolog-latest>Jan</a> |
+    <a href=http://bijugc.github.io/jsprolog/>Forked</a>
+	by Biju GC | Licensed under a two-clause (non-advertising) BSD-style
+    license.
+  </div>
+</body>
+</html>
