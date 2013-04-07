@@ -10,7 +10,7 @@
   <script src=https://raw.github.com/BijuGC/jsprolog/master/index.js></script>
 </head>
 
-<body class=longform>
+<body class=longform onkeypress="return bodyKeypress(event)">
   <div class=header>
     <h1>Prolog Interpreter in Javascript</h1>
 
@@ -125,7 +125,7 @@ arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
       <div class=content2head>
         <label>Enter your query:<br/>
         <textarea id=query>bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements</textarea></label>
-        <br/><button onclick="freeform(); return true;">Run query</button>
+        <br/><button onclick="freeform(); return true;">Run query</button> [Ctrl + Enter]
 		<label><input id=showparse type=checkbox /> Show parse results</label>
       </div>
 
