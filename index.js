@@ -17,7 +17,7 @@ function setLongForm(){
   document.body.className = t;
   $('sidebysidelink').className = '';
   $('longformlink').className = 'hide';
-    return false;
+  return false;
 }
 
 function setBigFont(){
@@ -65,7 +65,7 @@ function env_getConsultRules(){
 }
 
 function env_getQuery(){
-  return $('query').value;;
+  return $('query').value;
 }
 
 var env = {};
@@ -87,21 +87,21 @@ function consultchange(){
 
   for(var i=0; i < ff.files.length; i++){
     var oFile = ff.files[i];
-      var oFReader = new FileReader();
-      oFReader.onload = fileReaderLoad;
-      oFReader.fileName = oFile.name;
-      oFReader.readAsText(oFile);
+    var oFReader = new FileReader();
+    oFReader.onload = fileReaderLoad;
+    oFReader.fileName = oFile.name;
+    oFReader.readAsText(oFile);
   }
 }
 
 function selectrulechange(){
-   $('rules').className = 'hide';
-   $('stdrules').className = 'hide';
-   $('consultrules').className = 'hide';
+  $('rules').className = 'hide';
+  $('stdrules').className = 'hide';
+  $('consultrules').className = 'hide';
    
-   if($('selectrule1').checked) $('rules').className = '';
-   else if($('selectrule2').checked) $('stdrules').className = '';
-   else if($('selectrule3').checked) $('consultrules').className = '';
+  if($('selectrule1').checked) $('rules').className = '';
+  else if($('selectrule2').checked) $('stdrules').className = '';
+  else if($('selectrule3').checked) $('consultrules').className = '';
 }
 
  
@@ -114,8 +114,8 @@ function fileReaderLoad(oFREvent) {
 }
 
 function bodyKeypress(event){
-  if(event.ctrlKey && event.keyCode == 13){
-   freeform();
-   return false;
+  if(event.ctrlKey && event.keyCode in {13:1,10:1}){
+    freeform();
+    return false;
   }
 }
