@@ -10,33 +10,33 @@
   <script src=index.js></script>
 </head>
 
-<body class=longform>
+<body class=longform onkeypress="return bodyKeypress(event)">
   <div class=header>
     <h1>Prolog Interpreter in Javascript</h1>
 
     <div class=toolbar>
       Layout: 
-	  <a id=sidebysidelink href="" onclick="return setSideBySide()">SideBySide</a>
-	  <a id=longformlink class=hide href="" onclick="return setLongForm()">LongForm</a>
-	  <br/>
+      <a id=sidebysidelink href="" onclick="return setSideBySide()">SideBySide</a>
+      <a id=longformlink class=hide href="" onclick="return setLongForm()">LongForm</a>
+      <br/>
       Font size: 
-	  <a id=fontbiglink href="" onclick="return setBigFont()">Big</a>
-	  <a id=fontnormallink class=hide href="" onclick="return setNormalFont()">Normal</a><br/>
+      <a id=fontbiglink href="" onclick="return setBigFont()">Big</a>
+      <a id=fontnormallink class=hide href="" onclick="return setNormalFont()">Normal</a><br/>
     </div>
   </div>
 
   <div class=content>
     <div class=content1>
       <div class=content1head>
-		Show rules
-	    <label><input id=selectrule1 name=selectrules type=radio checked onchange="selectrulechange()" />User input</label>
+        Show rules
+        <label><input id=selectrule1 name=selectrules type=radio checked onchange="selectrulechange()" />User input</label>
         <label><input id=selectrule2 name=selectrules type=radio onchange="selectrulechange()" />Std rules</label>
         <label><input id=selectrule3 name=selectrules type=radio onchange="selectrulechange()" />Consult</label>
         <button onclick="consult(); return false;">Consult</button>
-		<input id=consultfile class=hide type=file onchange="consultchange()" multiple />
+        <input id=consultfile class=hide type=file onchange="consultchange()" multiple />
       </div>
 
-      <div class=content1body>	  
+      <div class=content1body>      
         <textarea id=stdrules class=hide>
 
 ### Accumulated standard library lives under here!
@@ -118,15 +118,15 @@ triple(P, X, Y) :- NOTTHIS triple(type, P, transitive), NOTTHIS triple(P, X, Z),
 arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
 
 </textarea>
-      </div>	
+      </div>    
     </div>
 
     <div class=content2>
       <div class=content2head>
         <label>Enter your query:<br/>
         <textarea id=query>bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements</textarea></label>
-        <br/><button onclick="freeform(); return true;">Run query</button>
-		<label><input id=showparse type=checkbox /> Show parse results</label>
+        <br/><button onclick="freeform(); return true;">Run query</button>  [Ctrl + Enter]
+        <label><input id=showparse type=checkbox /> Show parse results</label>
       </div>
 
       <div class=content2body>
@@ -138,7 +138,7 @@ arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
   <div class=footer>
     Original Author <a href=http://ioctl.org/logic/prolog-latest>Jan</a> |
     <a href=http://bijugc.github.io/jsprolog/>Forked</a>
-	by Biju GC | Licensed under a two-clause (non-advertising) BSD-style
+    by Biju GC | Licensed under a two-clause (non-advertising) BSD-style
     license.
   </div>
 </body>

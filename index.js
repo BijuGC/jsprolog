@@ -87,10 +87,10 @@ function consultchange(){
 
   for(var i=0; i < ff.files.length; i++){
     var oFile = ff.files[i];
-	  var oFReader = new FileReader();
-	  oFReader.onload = fileReaderLoad;
-	  oFReader.fileName = oFile.name;
-	  oFReader.readAsText(oFile);
+      var oFReader = new FileReader();
+      oFReader.onload = fileReaderLoad;
+      oFReader.fileName = oFile.name;
+      oFReader.readAsText(oFile);
   }
 }
 
@@ -111,5 +111,11 @@ function fileReaderLoad(oFREvent) {
   $('consultrules').value += '# Consult File: ' + oFREvent.target.fileName + '\n' + oFREvent.target.result + '\n'
   $('selectrule3').checked = true;  
   selectrulechange();
-};
+}
 
+function bodyKeypress(event){
+  if(event.ctrlKey && event.keyCode == 13){
+   freeform();
+   return false;
+  }
+}
