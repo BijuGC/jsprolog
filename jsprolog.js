@@ -1,7 +1,8 @@
+// Filename : lib.js
+// Authors : Jan <logic@ioctl.org>
 // Source : http://ioctl.org/logic/prolog-latest
 // License : two-clause (non-advertising) BSD-style license.
 //         see 2-clause license at http://en.wikipedia.org/wiki/BSD_licenses
-// Author : Jan <logic@ioctl.org>
 
 var cls, print;
 

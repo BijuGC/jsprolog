@@ -1,4 +1,6 @@
-//Author : BijuGC
+// Filename : prologui.js
+// Authors : BijuGC
+// License : two-clause (non-advertising) BSD-style license.
 
 function setSideBySide(){
   var t = document.body.className;

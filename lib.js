@@ -1,4 +1,6 @@
-//Author : BijuGC
+// Filename : lib.js
+// Authors : BijuGC
+// License : two-clause (non-advertising) BSD-style license.
 
 if(!window.$){
   window.$ = function $(id){
