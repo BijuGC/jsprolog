@@ -28,16 +28,26 @@ function setBigFont(){
   t = t + " bigfont";
   document.body.className = t;
   $('fontbiglink').className = 'hide';
-  $('fontnormallink').className = '';  
+  $('fontnormallink').className = '';
+  if(document.all){//fixing IE reflow issues
+      setTimeout(function (){document.body.className = t+" sidebyside";},50);
+      setTimeout(function (){document.body.className = t+" longform";},100);
+      setTimeout(function (){document.body.className = t;},150);
+  }  
   return false;
 }
 
 function setNormalFont(){
   var t = document.body.className;
   t = t.replace(/bigfont/g, "").trim();
-  document.body.className = t;
+  document.body.className = t; 
   $('fontbiglink').className = '';
   $('fontnormallink').className = 'hide';
+  if(document.all){//fixing IE reflow issues
+      setTimeout(function (){document.body.className = t+" sidebyside";},50);
+      setTimeout(function (){document.body.className = t+" longform";},100);
+      setTimeout(function (){document.body.className = t;},150);
+  }  
   return false;
 }
 
