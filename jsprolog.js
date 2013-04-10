@@ -19,14 +19,13 @@ function freeform() {
   print("Parsing rulesets.\n");
 
   rules = rules.split("\n");
-  var outr = [],
-    outi = 0;
-  for (var r = 0; r < rules.length; r++) {
-    var rule = rules[r];
+  var outr = [];
+  for (rules.next = 0; rules.next < rules.length; rules.next++) {
+    var rule = rules[rules.next];
     if (rule.substring(0, 1) == "#" || rule == "") continue;
-    var or = ParseRule(new Tokeniser(rule));
+    var or = ParseRule(new Tokeniser(rules));
     if (or == null) continue;
-    outr[outi++] = or;
+    outr.push(or);
     // print ("Rule "+outi+" is : ");
     if (show) or.print()
   }
@@ -43,7 +42,7 @@ function freeform() {
   print("Attachments done.\n");
 
   print("\nParsing query.\n");
-  var q = ParseBody(new Tokeniser(query));
+  var q = ParseBody(new Tokeniser([query]));
   if (q == null) {
     print("An error occurred parsing the query.\n");
     return;
@@ -422,19 +421,29 @@ function Rule(head, bodylist) {
 
 // The Tiny-Prolog parser goes here.
 
-function Tokeniser(string) {
-  this.remainder = string;
+function Tokeniser(strarray) {
+  strarray.next = strarray.next||0;
+  this.remainder = strarray[strarray.next];
   this.current = null;
   this.type = null; // "eof", "id", "var", "punc" etc.
   this.consume = function () {
     if (this.type == "eof") return;
     // Eat any leading WS
-    var r = this.remainder.match(/^\s*(.*)$/);
-    if (r) {
-      this.remainder = r[1];
-    }
+    var r;
+    this.remainder = this.remainder.replace(/^\s+/,'');
+    this.remainder = this.remainder.replace(/^\#.*/,'');
+    //if (r) {
+    //  this.remainder = r[1];
+    //}
 
     if (this.remainder == "") {
+      strarray.next++
+      this.remainder = strarray[strarray.next] || '.';
+      this.remainder = this.remainder.replace(/^\s+/, '');
+      if(this.remainder){
+        this.consume();
+        return;
+      }        
       this.current = null;
       this.type = "eof";
       return;
