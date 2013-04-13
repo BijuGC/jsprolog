@@ -6,39 +6,46 @@
 
 var cls, print;
 
+function addrules(rulesdb, rules) {
+  var show = env.getShowparse();
+  rules = rules.split("\n");
+  for (rules.next = 0; rules.next < rules.length; rules.next++) {
+    var rule = rules[rules.next];
+    if (rule.substring(0, 1) == "#" || rule == "") continue;
+    var or = ParseRule(new Tokeniser(rules));
+    if (or == null) continue;
+    rulesdb.push(or);
+    // print ("Rule "+outi+" is : ");
+    if (show) or.print()
+  }
+}
+
+
 function freeform() {
   print = env.print;
   cls = env.cls
   
   cls();
 
-  var rules = [env.getStdRules(), env.getConsultRules(), env.getRules()].join('\n\n\n') ;
   var show = env.getShowparse();
   var query = env.getQuery();
 
   print("Parsing rulesets.\n");
 
-  rules = rules.split("\n");
-  var outr = [];
-  for (rules.next = 0; rules.next < rules.length; rules.next++) {
-    var rule = rules[rules.next];
-    if (rule.substring(0, 1) == "#" || rule == "") continue;
-    var or = ParseRule(new Tokeniser(rules));
-    if (or == null) continue;
-    outr.push(or);
-    // print ("Rule "+outi+" is : ");
-    if (show) or.print()
-  }
+  var rulesdb = [];
+  addrules(rulesdb, env.getStdRules());
+  addrules(rulesdb, env.getConsultRules());
+  addrules(rulesdb, env.getRules());
 
   print("\nAttaching builtins to database.\n");
-  outr.builtin = [];
-  outr.builtin["compare/3"] = Comparitor;
-  outr.builtin["cut/0"] = Cut;
-  outr.builtin["call/1"] = Call;
-  outr.builtin["fail/0"] = Fail;
-  outr.builtin["bagof/3"] = BagOf;
-  outr.builtin["external/3"] = External;
-  outr.builtin["external2/3"] = ExternalAndParse;
+  rulesdb.builtin = [];
+  rulesdb.builtin["compare/3"] = Comparitor;
+  rulesdb.builtin["cut/0"] = Cut;
+  rulesdb.builtin["call/1"] = Call;
+  rulesdb.builtin["fail/0"] = Fail;
+  rulesdb.builtin["bagof/3"] = BagOf;
+  rulesdb.builtin["external/3"] = External;
+  rulesdb.builtin["external2/3"] = ExternalAndParse;
   print("Attachments done.\n");
 
   print("\nParsing query.\n");
@@ -57,9 +64,8 @@ function freeform() {
   var vs = varNames(q.list);
 
   // Prove the query.
-  prove(renameVariables(q.list, 0, []), [], outr, 1, applyOne(printVars, vs));
+  prove(renameVariables(q.list, 0, []), [], rulesdb, 1, applyOne(printVars, vs));
 }
-
 // Functional programming bits... Currying and suchlike
 
 function applyOne(f, arg1) {
