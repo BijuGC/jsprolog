@@ -80,7 +80,7 @@ function applyOne(f, arg1) {
 // Print out an environment's contents.
 
 function printEnv(env) {
-  if (env == null) {
+  if (!env) {
     print("null\n");
     return;
   }
@@ -96,7 +96,7 @@ function printEnv(env) {
 
 function printVars(which, environment) {
   // Print bindings.
-  if (which.length == 0) {
+  if (which.length < 1) {
     print("true\n");
   } else {
     for (var i = 0; i < which.length; i++) {
@@ -121,7 +121,7 @@ function value(x, env) {
   }
   if (x.type != "Variable") return x; // We only need to check the values of variables...
   var binding = env[x.name];
-  if (binding == null) return x; // Just the variable, no binding.
+  if (!binding) return x; // Just the variable, no binding.
   return value(binding, env);
 }
 
@@ -161,7 +161,7 @@ function unify(x, y, env) {
 
   for (var i = 0; i < x.partlist.list.length; i++) {
     env = unify(x.partlist.list[i], y.partlist.list[i], env);
-    if (env == null) return null;
+    if (!env) return null;
   }
 
   return env;
@@ -204,17 +204,17 @@ function renameVariables(list, level, parent) {
 // Return a list of all variables mentioned in a list of Terms.
 
 function varNames(list) {
-  var out = [];
+  var i, j, k, out = [];
 
-  main: for (var i = 0; i < list.length; i++) {
+  main: for (i = 0; i < list.length; i++) {
     if (list[i].type == "Variable") {
-      for (var j = 0; j < out.length; j++)
+      for (j = 0; j < out.length; j++)
         if (out[j].name == list[i].name) continue main;
       out[out.length] = list[i];
     } else if (list[i].type == "Term") {
       var o2 = varNames(list[i].partlist.list);
-      inner: for (var j = 0; j < o2.length; j++) {
-        for (var k = 0; k < out.length; k++)
+      inner: for (j = 0; j < o2.length; j++) {
+        for ( k = 0; k < out.length; k++)
           if (o2[j].name == out[k].name) continue inner;
         out[out.length] = o2[j];
       }
@@ -232,7 +232,7 @@ function varNames(list) {
 
 function prove(goalList, environment, db, level, reportFunction) {
   //DEBUG: print ("in main prove...\n");
-  if (goalList.length == 0) {
+  if (goalList.length < 1) {
     reportFunction(environment);
 
     //if (!more) return "done";
@@ -250,17 +250,17 @@ function prove(goalList, environment, db, level, reportFunction) {
 
   // Do we have a builtin?
   var builtin = db.builtin[thisTerm.name + "/" + thisTerm.partlist.list.length];
+  var newGoals, i, j, k, ret;
   // print ("Debug: searching for builtin "+thisTerm.name+"/"+thisTerm.partlist.list.length+"\n");
   if (builtin) {
     //print ("builtin with name " + thisTerm.name + " found; calling prove() on it...\n");
     // Stick the new body list
-    var newGoals = [];
-    var j;
+    newGoals = [];
     for (j = 1; j < goalList.length; j++) newGoals[j - 1] = goalList[j];
     return builtin(thisTerm, newGoals, environment, db, level + 1, reportFunction);
   }
 
-  for (var i = 0; i < db.length; i++) {
+  for (i = 0; i < db.length; i++) {
     //print ("Debug: in rule selection. thisTerm = "); thisTerm.print(); print ("\n");
     if (thisTerm.excludeRule == i) {
       // print("DEBUG: excluding rule number "+i+" in attempt to satisfy "); thisTerm.print(); print("\n");
@@ -278,28 +278,25 @@ function prove(goalList, environment, db, level, reportFunction) {
     // renamedHead.ruleNumber = i;
 
     var env2 = unify(thisTerm, renamedHead, environment);
-    if (env2 == null) continue;
+    if (!env2) continue;
 
     var body = rule.body;
-    if (body != null) {
+    if (body) {
       var newFirstGoals = renameVariables(rule.body.list, level, renamedHead);
       // Stick the new body list
-      var newGoals = [];
-      var j, k;
+      newGoals = [];
       for (j = 0; j < newFirstGoals.length; j++) {
         newGoals[j] = newFirstGoals[j];
         if (rule.body.list[j].excludeThis) newGoals[j].excludeRule = i;
       }
       for (k = 1; k < goalList.length; k++) newGoals[j++] = goalList[k];
-      var ret = prove(newGoals, env2, db, level + 1, reportFunction);
-      if (ret != null) return ret;
+      ret = prove(newGoals, env2, db, level + 1, reportFunction);
+      if (ret) return ret;
     } else {
       // Just prove the rest of the goallist, recursively.
-      var newGoals = [];
-      var j;
       for (j = 1; j < goalList.length; j++) newGoals[j - 1] = goalList[j];
-      var ret = prove(newGoals, env2, db, level + 1, reportFunction);
-      if (ret != null) return ret;
+      ret = prove(newGoals, env2, db, level + 1, reportFunction);
+      if (ret) return ret;
     }
 
     if (renamedHead.cut) {
@@ -407,19 +404,19 @@ function Rule(head) {
 
 function Rule(head, bodylist) {
   this.head = head;
-  if (bodylist != null)
+  if (bodylist)
     this.body = new Body(bodylist);
   else
     this.body = null;
 
   this.print = function () {
-    if (this.body == null) {
-      this.head.print();
-      print(".\n");
-    } else {
+    if (this.body) {
       this.head.print();
       print(" :- ");
       this.body.print();
+      print(".\n");
+    } else {
+      this.head.print();
       print(".\n");
     }
   };
@@ -443,7 +440,7 @@ function Tokeniser(strarray) {
     //  this.remainder = r[1];
     //}
 
-    if (this.remainder == "") {
+    if (!this.remainder) {
       strarray.next++
       this.remainder = strarray[strarray.next] || '.';
       this.remainder = this.remainder.replace(/^\s+/, '');
@@ -575,7 +572,7 @@ function ParseTerm(tk) {
     if (tk.type == "eof") return null;
 
     var part = ParsePart(tk);
-    if (part == null) return null;
+    if (!part) return null;
 
     if (tk.current == ",") tk.consume();
     else if (tk.current != ")") return null;
@@ -600,6 +597,7 @@ function ParsePart(tk) {
     tk.consume();
     return new Variable(n);
   }
+  var i;
 
   if (tk.type != "id") {
     if (tk.type != "punc" || tk.current != "[") return null;
@@ -612,12 +610,12 @@ function ParsePart(tk) {
     }
 
     // Get a list of parts into l
-    var l = [],
-      i = 0;
+    var l = [];
+    i = 0;
 
     while (true) {
       var t = ParsePart(tk);
-      if (t == null) return null;
+      if (!t) return null;
 
       l[i++] = t;
       if (tk.current != ",") break;
@@ -637,8 +635,7 @@ function ParsePart(tk) {
     if (tk.current != "]") return null;
     tk.consume();
     // Return the new cons.... of all this rubbish.
-    for (
-    --i; i >= 0; i--) append = new Term("cons", [l[i], append]);
+    for (--i; i >= 0; i--) append = new Term("cons", [l[i], append]);
     return append;
   }
 
@@ -649,12 +646,12 @@ function ParsePart(tk) {
   tk.consume();
 
   var p = [];
-  var i = 0;
+  i = 0;
   while (tk.current != ")") {
     if (tk.type == "eof") return null;
 
     var part = ParsePart(tk);
-    if (part == null) return null;
+    if (!part) return null;
 
     if (tk.current == ",") tk.consume();
     else if (tk.current != ")") return null;
@@ -674,13 +671,13 @@ function ParseBody(tk) {
   var i = 0;
 
   var t;
-  while ((t = ParseTerm(tk)) != null) {
+  while ((t = ParseTerm(tk))) {
     p[i++] = t;
     if (tk.current != ",") break;
     tk.consume();
   }
 
-  if (i == 0) return null;
+  if (i<1) return null;
   return p;
 }
 
@@ -721,7 +718,7 @@ function Comparitor(thisTerm, goalList, environment, db, level, reportFunction) 
 
   var env2 = unify(thisTerm.partlist.list[2], new Atom(cmp), environment);
 
-  if (env2 == null) {
+  if (!env2) {
     //print("Debug: Comparitor cannot unify CmpValue with " + cmp + ", failing\n");
     return null;
   }
@@ -794,7 +791,7 @@ function BagOf(thisTerm, goalList, environment, db, level, reportFunction) {
   var subgoal = value(thisTerm.partlist.list[1], environment);
   var into = value(thisTerm.partlist.list[2], environment);
 
-  var collect = renameVariables(collect, level, thisTerm);
+  collect = renameVariables(collect, level, thisTerm);
   var newGoal = new Term(subgoal.name, renameVariables(subgoal.partlist.list, level, thisTerm));
   newGoal.parent = thisTerm;
 
@@ -826,7 +823,7 @@ function BagOf(thisTerm, goalList, environment, db, level, reportFunction) {
   //print("Debug: unifying "); into.print(); print(" with "); answers.print(); print("\n");
   var env2 = unify(into, answers, environment);
 
-  if (env2 == null) {
+  if (!env2) {
     //print("Debug: bagof cannot unify anslist with "); into.print(); print(", failing\n");
     return null;
   }
@@ -875,8 +872,7 @@ function External(thisTerm, goalList, environment, db, level, reportFunction) {
 
   // Get the second term, the argument list.
   var second = value(thisTerm.partlist.list[1], environment);
-  var arglist = [],
-    i = 1;
+  var arglist = [], i = 1;
   while (second.type == "Term" && second.name == "cons") {
     // Go through second an argument at a time...
     var arg = value(second.partlist.list[0], environment);
@@ -909,7 +905,7 @@ function External(thisTerm, goalList, environment, db, level, reportFunction) {
   // Convert back into an atom...
   var env2 = unify(thisTerm.partlist.list[2], new Atom(ret), environment);
 
-  if (env2 == null) {
+  if (!env2) {
     //print("Debug: External/3 cannot unify OutValue with " + ret + ", failing\n");
     return null;
   }
@@ -972,7 +968,7 @@ function ExternalAndParse(thisTerm, goalList, environment, db, level, reportFunc
 
   var env2 = unify(thisTerm.partlist.list[2], ret, environment);
 
-  if (env2 == null) {
+  if (!env2) {
     //print("Debug: External/3 cannot unify OutValue with " + ret + ", failing\n");
     return null;
   }
