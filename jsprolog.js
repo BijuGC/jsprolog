@@ -294,6 +294,7 @@ function prove(goalList, environment, db, level, reportFunction) {
       if (ret) return ret;
     } else {
       // Just prove the rest of the goallist, recursively.
+      newGoals = [];
       for (j = 1; j < goalList.length; j++) newGoals[j - 1] = goalList[j];
       ret = prove(newGoals, env2, db, level + 1, reportFunction);
       if (ret) return ret;
