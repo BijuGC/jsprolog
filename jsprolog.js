@@ -7,16 +7,14 @@
 var cls, print;
 
 function addrules(rulesdb, rules) {
-  var show = env.getShowparse();
+  var or, show = env.getShowparse();
   rules = rules.split("\n");
   for (rules.next = 0; rules.next < rules.length; rules.next++) {
-    var rule = rules[rules.next];
-    if (rule.substring(0, 1) == "#" || rule == "") continue;
-    var or = ParseRule(new Tokeniser(rules));
-    if (or == null) continue;
-    rulesdb.push(or);
-    // print ("Rule "+outi+" is : ");
-    if (show) or.print()
+    or = ParseRule(new Tokeniser(rules));
+    if (or) {
+        rulesdb.push(or);
+        show && or.print();
+    }
   }
 }
 
