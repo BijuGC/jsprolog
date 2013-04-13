@@ -18,6 +18,16 @@ function addrules(rulesdb, rules) {
   }
 }
 
+function addbuiltinrules(rulesdb) {
+  if(!rulesdb.builtin) rulesdb.builtin = [];
+  rulesdb.builtin["compare/3"] = Comparitor;
+  rulesdb.builtin["cut/0"] = Cut;
+  rulesdb.builtin["call/1"] = Call;
+  rulesdb.builtin["fail/0"] = Fail;
+  rulesdb.builtin["bagof/3"] = BagOf;
+  rulesdb.builtin["external/3"] = External;
+  rulesdb.builtin["external2/3"] = ExternalAndParse;
+}
 
 function freeform() {
   print = env.print;
@@ -36,19 +46,12 @@ function freeform() {
   addrules(rulesdb, env.getRules());
 
   print("\nAttaching builtins to database.\n");
-  rulesdb.builtin = [];
-  rulesdb.builtin["compare/3"] = Comparitor;
-  rulesdb.builtin["cut/0"] = Cut;
-  rulesdb.builtin["call/1"] = Call;
-  rulesdb.builtin["fail/0"] = Fail;
-  rulesdb.builtin["bagof/3"] = BagOf;
-  rulesdb.builtin["external/3"] = External;
-  rulesdb.builtin["external2/3"] = ExternalAndParse;
+  addbuiltinrules(rulesdb);
   print("Attachments done.\n");
 
   print("\nParsing query.\n");
   var q = ParseBody(new Tokeniser([query]));
-  if (q == null) {
+  if (!q) {
     print("An error occurred parsing the query.\n");
     return;
   }
