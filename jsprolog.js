@@ -4,10 +4,10 @@
 // License : two-clause (non-advertising) BSD-style license.
 //         see 2-clause license at http://en.wikipedia.org/wiki/BSD_licenses
 
-var cls, print;
+var cls, print, envsettings;
 
 function addrules(rulesdb, rules) {
-  var or, show = env.getShowparse();
+  var or, show = envsettings.getShowparse();
   rules = rules.split("\n");
   for (rules.next = 0; rules.next < rules.length; rules.next++) {
     or = ParseRule(new Tokeniser(rules));
@@ -29,21 +29,22 @@ function addbuiltinrules(rulesdb) {
   rulesdb.builtin["external2/3"] = ExternalAndParse;
 }
 
-function freeform() {
-  print = env.print;
-  cls = env.cls
+function jsprolog_query(env) {
+  envsettings = env;
+  print = envsettings.print;
+  cls = envsettings.cls;
   
   cls();
 
-  var show = env.getShowparse();
-  var query = env.getQuery();
+  var show = envsettings.getShowparse();
+  var query = envsettings.getQuery();
 
   print("Parsing rulesets.\n");
 
   var rulesdb = [];
-  addrules(rulesdb, env.getStdRules());
-  addrules(rulesdb, env.getConsultRules());
-  addrules(rulesdb, env.getRules());
+  addrules(rulesdb, envsettings.getStdRules());
+  addrules(rulesdb, envsettings.getConsultRules());
+  addrules(rulesdb, envsettings.getRules());
 
   print("\nAttaching builtins to database.\n");
   addbuiltinrules(rulesdb);

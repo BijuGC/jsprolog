@@ -80,14 +80,14 @@ function env_getQuery(){
   return $('query').value;
 }
 
-var env = {};
-env.cls = env_cls;
-env.print = env_print;
-env.getShowparse = env_getShowparse;
-env.getStdRules = env_getStdRules;
-env.getConsultRules = env_getConsultRules;
-env.getRules = env_getRules;
-env.getQuery = env_getQuery;
+var prologuisettings = {};
+prologuisettings.cls = env_cls;
+prologuisettings.print = env_print;
+prologuisettings.getShowparse = env_getShowparse;
+prologuisettings.getStdRules = env_getStdRules;
+prologuisettings.getConsultRules = env_getConsultRules;
+prologuisettings.getRules = env_getRules;
+prologuisettings.getQuery = env_getQuery;
 
 
 function consult(){
@@ -120,14 +120,19 @@ function selectrulechange(){
 function fileReaderLoad(oFREvent) {
   if($('consultrules').value.trim()) $('consultrules').value +=  '\n\n\n';
   else $('consultrules').value = '';
-  $('consultrules').value += '# Consult File: ' + oFREvent.target.fileName + '\n' + oFREvent.target.result + '\n'
+  $('consultrules').value += '# Consult File: ' + oFREvent.target.fileName + '\n' + oFREvent.target.result + '\n';
   $('selectrule3').checked = true;  
   selectrulechange();
 }
 
 function bodyKeypress(event){
   if(event.ctrlKey && event.keyCode in {13:1,10:1}){
-    freeform();
+    runprolog();
     return false;
   }
 }
+function runprolog() {
+    jsprolog_query(prologuisettings); 
+}
+
+var freeform = runprolog;
