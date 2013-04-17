@@ -140,9 +140,9 @@ function newEnv(n, z, e) {
   // in the environment. If this is not the case, we could get an alias loop.
   var ne = [];
   ne[n] = z;
-  for (var i in e)
+  for (var i in e) {
     if (i != n) ne[i] = e[i];
-
+  }
   return ne;
 }
 
