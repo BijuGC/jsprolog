@@ -6,20 +6,22 @@
 
 var cls, print, envsettings;
 
-function addrules(rulesdb, rules) {
+function addrules(rulesdb, rules, name) {
   var or, show = envsettings.getShowparse();
   rules = rules.split("\n");
+  var ruleset = [];
+  rulesdb.rulesets[name] = ruleset;
   for (rules.next = 0; rules.next < rules.length; rules.next++) {
     or = ParseRule(new Tokeniser(rules));
     if (or) {
-        rulesdb.push(or);
+        ruleset.push(or);
         show && or.print();
     }
   }
 }
 
 function addbuiltinrules(rulesdb) {
-  if(!rulesdb.builtin) rulesdb.builtin = [];
+  rulesdb.builtin = [];
   rulesdb.builtin["compare/3"] = Comparitor;
   rulesdb.builtin["cut/0"] = Cut;
   rulesdb.builtin["call/1"] = Call;
@@ -38,17 +40,21 @@ function jsprolog_query(env) {
 
   var show = envsettings.getShowparse();
   var query = envsettings.getQuery();
+  
+  var rulesdb = {rulesets:{}};
 
-  print("Parsing rulesets.\n");
-
-  var rulesdb = [];
-  addrules(rulesdb, envsettings.getStdRules());
-  addrules(rulesdb, envsettings.getConsultRules());
-  addrules(rulesdb, envsettings.getRules());
 
   print("\nAttaching builtins to database.\n");
   addbuiltinrules(rulesdb);
   print("Attachments done.\n");
+
+  
+  print("Parsing rulesets.\n");
+
+  addrules(rulesdb, envsettings.getStdRules(), 'std');
+  addrules(rulesdb, envsettings.getConsultRules(), 'consult');
+  addrules(rulesdb, envsettings.getRules(), 'ruleset');
+
 
   print("\nParsing query.\n");
   var q = ParseBody(new Tokeniser([query]));
@@ -189,7 +195,7 @@ function renameVariables(list, level, parent) {
   for (var i = 0; i < list.length; i++) {
     out[i] = renameVariables(list[i], level, parent);
     /*
-			if (list[i].type == "Atom") {
+  		if (list[i].type == "Atom") {
 				out[i] = list[i];
 			} else if (list[i].type == "Variable") {
 				out[i] = new Variable(list[i].name + "." + level);
@@ -260,57 +266,60 @@ function prove(goalList, environment, db, level, reportFunction) {
     for (j = 1; j < goalList.length; j++) newGoals[j - 1] = goalList[j];
     return builtin(thisTerm, newGoals, environment, db, level + 1, reportFunction);
   }
+  var setname, ruleset;
+  for(setname in db.rulesets){
+      ruleset=db.rulesets[setname];
+      for (i = 0; i < ruleset.length; i++) {
+        //print ("Debug: in rule selection. thisTerm = "); thisTerm.print(); print ("\n");
+        if (thisTerm.excludeRule && thisTerm.excludeRule.line == i && thisTerm.excludeRule.name == setname) {
+          // print("DEBUG: excluding rule number "+i+" in attempt to satisfy "); thisTerm.print(); print("\n");
+          continue;
+        }
 
-  for (i = 0; i < db.length; i++) {
-    //print ("Debug: in rule selection. thisTerm = "); thisTerm.print(); print ("\n");
-    if (thisTerm.excludeRule == i) {
-      // print("DEBUG: excluding rule number "+i+" in attempt to satisfy "); thisTerm.print(); print("\n");
-      continue;
-    }
+        var rule = ruleset[i];
 
-    var rule = db[i];
+        // We'll need better unification to allow the 2nd-order
+        // rule matching ... later.
+        if (rule.head.name != thisTerm.name) continue;
 
-    // We'll need better unification to allow the 2nd-order
-    // rule matching ... later.
-    if (rule.head.name != thisTerm.name) continue;
+        // Rename the variables in the head and body
+        var renamedHead = new Term(rule.head.name, renameVariables(rule.head.partlist.list, level, thisTerm));
+        // renamedHead.ruleNumber = i;
 
-    // Rename the variables in the head and body
-    var renamedHead = new Term(rule.head.name, renameVariables(rule.head.partlist.list, level, thisTerm));
-    // renamedHead.ruleNumber = i;
+        var env2 = unify(thisTerm, renamedHead, environment);
+        if (!env2) continue;
 
-    var env2 = unify(thisTerm, renamedHead, environment);
-    if (!env2) continue;
+        var body = rule.body;
+        if (body) {
+          var newFirstGoals = renameVariables(rule.body.list, level, renamedHead);
+          // Stick the new body list
+          newGoals = [];
+          for (j = 0; j < newFirstGoals.length; j++) {
+            newGoals[j] = newFirstGoals[j];
+            if (rule.body.list[j].excludeThis) newGoals[j].excludeRule = {line:i,name:setname};
+          }
+          for (k = 1; k < goalList.length; k++) newGoals[j++] = goalList[k];
+          ret = prove(newGoals, env2, db, level + 1, reportFunction);
+          if (ret) return ret;
+        } else {
+          // Just prove the rest of the goallist, recursively.
+          newGoals = [];
+          for (j = 1; j < goalList.length; j++) newGoals[j - 1] = goalList[j];
+          ret = prove(newGoals, env2, db, level + 1, reportFunction);
+          if (ret) return ret;
+        }
 
-    var body = rule.body;
-    if (body) {
-      var newFirstGoals = renameVariables(rule.body.list, level, renamedHead);
-      // Stick the new body list
-      newGoals = [];
-      for (j = 0; j < newFirstGoals.length; j++) {
-        newGoals[j] = newFirstGoals[j];
-        if (rule.body.list[j].excludeThis) newGoals[j].excludeRule = i;
+        if (renamedHead.cut) {
+          //print ("Debug: this goal "); thisTerm.print(); print(" has been cut.\n");
+          break;
+        }
+        if (thisTerm.parent.cut) {
+          //print ("Debug: parent goal "); thisTerm.parent.print(); print(" has been cut.\n");
+          break;
+        }
       }
-      for (k = 1; k < goalList.length; k++) newGoals[j++] = goalList[k];
-      ret = prove(newGoals, env2, db, level + 1, reportFunction);
-      if (ret) return ret;
-    } else {
-      // Just prove the rest of the goallist, recursively.
-      newGoals = [];
-      for (j = 1; j < goalList.length; j++) newGoals[j - 1] = goalList[j];
-      ret = prove(newGoals, env2, db, level + 1, reportFunction);
-      if (ret) return ret;
-    }
-
-    if (renamedHead.cut) {
-      //print ("Debug: this goal "); thisTerm.print(); print(" has been cut.\n");
-      break;
-    }
-    if (thisTerm.parent.cut) {
-      //print ("Debug: parent goal "); thisTerm.parent.print(); print(" has been cut.\n");
-      break;
-    }
   }
-
+  
   return null;
 }
 
