@@ -1,22 +1,42 @@
-// Filename : lib.js
-// Authors : 
+// Filename : jsprolog.js
+// Contributors : 
 //      Jan <logic@ioctl.org>
 //      BijuGC
 // Source : http://ioctl.org/logic/prolog-latest
 // License : two-clause (non-advertising) BSD-style license.
 //     see 2-clause license at http://en.wikipedia.org/wiki/BSD_licenses
 
-jsprolog_query = JSProlog;
+//jsprolog_query = JSProlog;
+function jsprolog_query(envsettings) {
+  var jsprolog =  JSProlog(envsettings);
+  jsprolog.cls();
+  
+  jsprolog.print("Parsing rulesets.\n");
+  jsprolog.addrules(envsettings.getStdRules(), 'std');
+  jsprolog.addrules(envsettings.getConsultRules(), 'consult');
+  jsprolog.addrules(envsettings.getRules(), 'ruleset');
+    
+  return jsprolog.execquery(envsettings.getQuery());
+}
 
-function JSProlog(env) {
-  var cls, print, envsettings;
+function JSProlog(envsettings) {
+  var cls, print;
   var EvalContext = [];
-  var tokenstring;
-  var currenttoken;
+  var rulesdb = {rulesets:{}};
+  
+  return new JSProlog();;
+  
+  function JSProlog() {
+    print = envsettings.print;
+    cls = envsettings.cls;
+    this.execquery = execquery; 
+    this.addrules = addrules; 
+    this.print = print;
+    this.cls = cls;
+    addbuiltinrules();
+  }
 
-  return query(env);
-
-  function addrules(rulesdb, rules, name) {
+  function addrules(rules, name) {
     var or, show = envsettings.getShowparse();
     rules = rules.split("\n");
     var ruleset = [];
@@ -30,7 +50,7 @@ function JSProlog(env) {
     }
   }
 
-  function addbuiltinrules(rulesdb) {
+  function addbuiltinrules() {
     rulesdb.builtin = [];
     rulesdb.builtin["compare/3"] = Comparitor;
     rulesdb.builtin["cut/0"] = Cut;
@@ -41,31 +61,8 @@ function JSProlog(env) {
     rulesdb.builtin["external2/3"] = ExternalAndParse;
   }
 
-  function query(env) {
-    envsettings = env;
-    print = envsettings.print;
-    cls = envsettings.cls;
+  function execquery(query) {
     
-    cls();
-
-    var show = envsettings.getShowparse();
-    var query = envsettings.getQuery();
-    
-    var rulesdb = {rulesets:{}};
-
-
-    print("\nAttaching builtins to database.\n");
-    addbuiltinrules(rulesdb);
-    print("Attachments done.\n");
-
-    
-    print("Parsing rulesets.\n");
-
-    addrules(rulesdb, envsettings.getStdRules(), 'std');
-    addrules(rulesdb, envsettings.getConsultRules(), 'consult');
-    addrules(rulesdb, envsettings.getRules(), 'ruleset');
-
-
     print("\nParsing query.\n");
     var q = ParseBody(new Tokeniser([query]));
     if (!q) {
@@ -73,7 +70,7 @@ function JSProlog(env) {
       return;
     }
     q = new Body(q);
-    if (show) {
+    if (envsettings.getShowparse()) {
       print("Query is: ");
       q.print();
       print("\n\n");
@@ -247,7 +244,7 @@ function JSProlog(env) {
 
   // The main proving engine. Returns: null (keep going), other (drop out)
 
-  function prove(goalList, environment, db, level, reportFunction) {
+  function prove(goalList, environment, rulesdb, level, reportFunction) {
     //DEBUG: print ("in main prove...\n");
     if (goalList.length < 1) {
       reportFunction(environment);
@@ -266,7 +263,7 @@ function JSProlog(env) {
     //print ("Debug: thisterm = "); thisTerm.print(); print("\n");
 
     // Do we have a builtin?
-    var builtin = db.builtin[thisTerm.name + "/" + thisTerm.partlist.list.length];
+    var builtin = rulesdb.builtin[thisTerm.name + "/" + thisTerm.partlist.list.length];
     var newGoals, i, j, k, ret;
     // print ("Debug: searching for builtin "+thisTerm.name+"/"+thisTerm.partlist.list.length+"\n");
     if (builtin) {
@@ -274,11 +271,11 @@ function JSProlog(env) {
       // Stick the new body list
       newGoals = [];
       for (j = 1; j < goalList.length; j++) newGoals[j - 1] = goalList[j];
-      return builtin(thisTerm, newGoals, environment, db, level + 1, reportFunction);
+      return builtin(thisTerm, newGoals, environment, rulesdb, level + 1, reportFunction);
     }
     var setname, ruleset;
-    for(setname in db.rulesets){
-        ruleset=db.rulesets[setname];
+    for(setname in rulesdb.rulesets){
+        ruleset=rulesdb.rulesets[setname];
         for (i = 0; i < ruleset.length; i++) {
           //print ("Debug: in rule selection. thisTerm = "); thisTerm.print(); print ("\n");
           if (thisTerm.excludeRule && thisTerm.excludeRule.line == i && thisTerm.excludeRule.name == setname) {
@@ -309,13 +306,13 @@ function JSProlog(env) {
               if (rule.body.list[j].excludeThis) newGoals[j].excludeRule = {line:i,name:setname};
             }
             for (k = 1; k < goalList.length; k++) newGoals[j++] = goalList[k];
-            ret = prove(newGoals, env2, db, level + 1, reportFunction);
+            ret = prove(newGoals, env2, rulesdb, level + 1, reportFunction);
             if (ret) return ret;
           } else {
             // Just prove the rest of the goallist, recursively.
             newGoals = [];
             for (j = 1; j < goalList.length; j++) newGoals[j - 1] = goalList[j];
-            ret = prove(newGoals, env2, db, level + 1, reportFunction);
+            ret = prove(newGoals, env2, rulesdb, level + 1, reportFunction);
             if (ret) return ret;
           }
 
@@ -708,7 +705,7 @@ function JSProlog(env) {
   // First, Second must be bound to strings here.
   // CmpValue is bound to -1, 0, 1
 
-  function Comparitor(thisTerm, goalList, environment, db, level, reportFunction) {
+  function Comparitor(thisTerm, goalList, environment, rulesdb, level, reportFunction) {
     //DEBUG print ("in Comparitor.prove()...\n");
     // Prove the builtin bit, then break out and prove
     // the remaining goalList.
@@ -743,10 +740,10 @@ function JSProlog(env) {
     }
 
     // Just prove the rest of the goallist, recursively.
-    return prove(goalList, env2, db, level + 1, reportFunction);
+    return prove(goalList, env2, rulesdb, level + 1, reportFunction);
   }
 
-  function Cut(thisTerm, goalList, environment, db, level, reportFunction) {
+  function Cut(thisTerm, goalList, environment, rulesdb, level, reportFunction) {
     //DEBUG print ("in Comparitor.prove()...\n");
     // Prove the builtin bit, then break out and prove
     // the remaining goalList.
@@ -760,7 +757,7 @@ function JSProlog(env) {
     // On the way through, we do nothing...
 
     // Just prove the rest of the goallist, recursively.
-    ret = prove(goalList, environment, db, level + 1, reportFunction);
+    ret = prove(goalList, environment, rulesdb, level + 1, reportFunction);
 
     // Backtracking through the 'cut' stops any further attempts to prove this subgoal.
     //print ("Debug: backtracking through cut/0: thisTerm.parent = "); thisTerm.parent.print(); print("\n");
@@ -771,7 +768,7 @@ function JSProlog(env) {
 
   // Given a single argument, it sticks it on the goal list.
 
-  function Call(thisTerm, goalList, environment, db, level, reportFunction) {
+  function Call(thisTerm, goalList, environment, rulesdb, level, reportFunction) {
     // Prove the builtin bit, then break out and prove
     // the remaining goalList.
 
@@ -796,14 +793,14 @@ function JSProlog(env) {
     for (j = 0; j < goalList.length; j++) newGoals[j + 1] = goalList[j];
 
     // Just prove the rest of the goallist, recursively.
-    return prove(newGoals, environment, db, level + 1, reportFunction);
+    return prove(newGoals, environment, rulesdb, level + 1, reportFunction);
   }
 
-  function Fail(thisTerm, goalList, environment, db, level, reportFunction) {
+  function Fail(thisTerm, goalList, environment, rulesdb, level, reportFunction) {
     return null;
   }
 
-  function BagOf(thisTerm, goalList, environment, db, level, reportFunction) {
+  function BagOf(thisTerm, goalList, environment, rulesdb, level, reportFunction) {
     // bagof(Term, ConditionTerm, ReturnList)
 
     var collect = value(thisTerm.partlist.list[0], environment);
@@ -820,7 +817,7 @@ function JSProlog(env) {
     // Prove this subgoal, collecting up the environments...
     var anslist = [];
     anslist.renumber = -1;
-    ret = prove(newGoals, environment, db, level + 1, BagOfCollectFunction(collect, anslist));
+    ret = prove(newGoals, environment, rulesdb, level + 1, BagOfCollectFunction(collect, anslist));
 
     // Turn anslist into a proper list and unify with 'into'
 
@@ -848,7 +845,7 @@ function JSProlog(env) {
     }
 
     // Just prove the rest of the goallist, recursively.
-    return prove(goalList, env2, db, level + 1, reportFunction);
+    return prove(goalList, env2, rulesdb, level + 1, reportFunction);
   }
 
   // Aux function: return the reportFunction to use with a bagof subgoal
@@ -873,7 +870,7 @@ function JSProlog(env) {
   // external/3 takes three arguments:
   // first: a template string that uses $1, $2, etc. as placeholders for 
 
-  function External(thisTerm, goalList, environment, db, level, reportFunction) {
+  function External(thisTerm, goalList, environment, rulesdb, level, reportFunction) {
     //print ("DEBUG: in External...\n");
 
     // Get the first term, the template.
@@ -929,10 +926,10 @@ function JSProlog(env) {
     }
 
     // Just prove the rest of the goallist, recursively.
-    return prove(goalList, env2, db, level + 1, reportFunction);
+    return prove(goalList, env2, rulesdb, level + 1, reportFunction);
   }
 
-  function ExternalAndParse(thisTerm, goalList, environment, db, level, reportFunction) {
+  function ExternalAndParse(thisTerm, goalList, environment, rulesdb, level, reportFunction) {
     //print ("DEBUG: in External...\n");
 
     // Get the first term, the template.
@@ -992,7 +989,7 @@ function JSProlog(env) {
     }
 
     // Just prove the rest of the goallist, recursively.
-    return prove(goalList, env2, db, level + 1, reportFunction);
+    return prove(goalList, env2, rulesdb, level + 1, reportFunction);
   }
  
 }
