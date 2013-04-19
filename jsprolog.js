@@ -45,7 +45,8 @@ function JSProlog(envsettings) {
       or = ParseRule(new Tokeniser(rules));
       if (or) {
           ruleset.push(or);
-          show && or.print();
+          //show && or.print();
+          show && print(or);
       }
     }
   }
@@ -341,81 +342,148 @@ function JSProlog(envsettings) {
 
   function Variable(head) {
     this.name = head;
-    // I had a sneaking suspicion that the (rather nice, I reckon)
-    // idiom below returned a closure-like reference rather than an
-    // anonymous function reference. It does; but I'm not overly
-    // concerned with efficiency here. This is is Prolog interpreter
-    // written in JS, for goodness' sake!
-    this.print = function () {
-      print(this.name);
-    };
+    this.print = Variable_print;
+    this.toString = Variable_toString;
     this.type = "Variable";
   }
 
+  function Variable_print() {
+    print(this.toString());
+  };
+  
+  function Variable_toString() {
+    return '' + this.name;
+  };
+
   function Atom(head) {
     this.name = head;
-    this.print = function () {
-      print(this.name);
-    };
+    this.print = Atom_print ;
+    this.toString = Atom_toString;
     this.type = "Atom";
   }
+  
+  function Atom_toString() {
+    return '' + this.name;
+  }
 
+  function Atom_print() {
+    print(this.toString());
+  }
+  
   function Term(head, list) {
     this.name = head;
     this.partlist = new Partlist(list);
-    this.print = function () {
-      if (this.name == "cons") {
-        var x = this;
-        while (x.type == "Term" && x.name == "cons" && x.partlist.list.length == 2) {
-          x = x.partlist.list[1];
-        }
-        if ((x.type == "Atom" && x.name == "nil") || x.type == "Variable") {
-          x = this;
-          print("[");
-          var com = false;
-          while (x.type == "Term" && x.name == "cons" && x.partlist.list.length == 2) {
-            if (com) print(", ");
-            x.partlist.list[0].print();
-            com = true;
-            x = x.partlist.list[1];
-          }
-          if (x.type == "Variable") {
-            print(" | ");
-            x.print();
-          }
-          print("]");
-          return;
-        }
-      }
-      print("" + this.name + "(");
-      this.partlist.print();
-      print(")");
-    };
+    this.print = Term_print;
+    this.toString = Term_toString;
     this.type = "Term";
   }
 
+  function Term_toString() {
+    var ret = [];
+    if (this.name == "cons") {
+      var x = this;
+      while (x.type == "Term" && x.name == "cons" && x.partlist.list.length == 2) {
+        x = x.partlist.list[1];
+      }
+      if ((x.type == "Atom" && x.name == "nil") || x.type == "Variable") {
+        x = this;
+        ret.push("[");
+        var com = false;
+        while (x.type == "Term" && x.name == "cons" && x.partlist.list.length == 2) {
+          if (com) ret.push(", ");
+          ret.push(x.partlist.list[0]);
+          com = true;
+          x = x.partlist.list[1];
+        }
+        if (x.type == "Variable") {
+          ret.push(" | ");
+          ret.push(x);
+        }
+        ret.push("]");
+        return ret.joinb();
+      }
+    }
+    ret.push("" + this.name + "(");
+    ret.push(this.partlist);
+    ret.push(")");
+    return ret.joinb();
+  }
+
+  function Term_print() {
+    if (this.name == "cons") {
+      var x = this;
+      while (x.type == "Term" && x.name == "cons" && x.partlist.list.length == 2) {
+        x = x.partlist.list[1];
+      }
+      if ((x.type == "Atom" && x.name == "nil") || x.type == "Variable") {
+        x = this;
+        print("[");
+        var com = false;
+        while (x.type == "Term" && x.name == "cons" && x.partlist.list.length == 2) {
+          if (com) print(", ");
+          x.partlist.list[0].print();
+          com = true;
+          x = x.partlist.list[1];
+        }
+        if (x.type == "Variable") {
+          print(" | ");
+          x.print();
+        }
+        print("]");
+        return;
+      }
+    }
+    print("" + this.name + "(");
+    this.partlist.print();
+    print(")");
+  }
+
+  
   function Partlist(list) {
     this.list = list;
-    this.print = function () {
-      for (var i = 0; i < this.list.length; i++) {
-        this.list[i].print();
-        if (i < this.list.length - 1)
-          print(", ");
-      }
-    };
+    this.print = Partlist_print;
+    this.toString = Partlist_toString;
   }
 
+  function Partlist_toString() {
+    var ret = [];
+    for (var i = 0; i < this.list.length; i++) {
+      ret.push(this.list[i]);
+      if (i < this.list.length - 1)
+        ret.push(", ");
+    }
+    return ret.joinb();
+  }
+  
+  function Partlist_print() {
+    for (var i = 0; i < this.list.length; i++) {
+      this.list[i].print();
+      if (i < this.list.length - 1)
+        print(", ");
+    }
+  }
+  
   function Body(list) {
     this.list = list;
-    this.print = function () {
-      for (var i = 0; i < this.list.length; i++) {
-        this.list[i].print();
-        if (i < this.list.length - 1)
-          print(", ");
-      }
-    };
+    this.print = Body_print;
+    this.toString = Body_toString;
   }
-
+  function Body_toString() {
+    var ret = [];
+    for (var i = 0; i < this.list.length; i++) {
+      ret.push(this.list[i]);
+      if (i < this.list.length - 1)
+        ret.push(", ");
+    }
+    return ret.joinb();
+  }
+  function Body_print() {
+    for (var i = 0; i < this.list.length; i++) {
+      this.list[i].print();
+      if (i < this.list.length - 1)
+        print(", ");
+    }
+  }
   function Rule(head) {
     return new Rule(head, null);
   }
@@ -427,19 +495,33 @@ function JSProlog(envsettings) {
     else
       this.body = null;
 
-    this.print = function () {
-      if (this.body) {
-        this.head.print();
-        print(" :- ");
-        this.body.print();
-        print(".\n");
-      } else {
-        this.head.print();
-        print(".\n");
-      }
-    };
+    this.print = Rule_print;
+    this.toString = Rule_toString;
   }
-
+  function Rule_toString() {
+    var ret = [];
+    if (this.body) {
+      ret.push(this.head);
+      ret.push(" :- ");
+      ret.push(this.body);
+      ret.push(".\n");
+    } else {
+      ret.push(this.head);
+      ret.push(".\n");
+    }
+    return ret.joinb();
+  }
+  function Rule_print() {
+    if (this.body) {
+      this.head.print();
+      print(" :- ");
+      this.body.print();
+      print(".\n");
+    } else {
+      this.head.print();
+      print(".\n");
+    }
+  }
 
   // The Tiny-Prolog parser goes here.
 
@@ -448,7 +530,9 @@ function JSProlog(envsettings) {
     this.remainder = strarray[strarray.next];
     this.current = null;
     this.type = null; // "eof", "id", "var", "punc" etc.
-    this.consume = function () {
+    this.consume = consume;
+    this.consume(); // Load up the first token.
+    function consume() {
       if (this.type == "eof") return;
       // Eat any leading WS
       var r;
@@ -523,9 +607,7 @@ function JSProlog(envsettings) {
 
       this.current = null;
       this.type = "eof";
-
-    };
-    this.consume(); // Load up the first token.
+    }
   }
 
 
