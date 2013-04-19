@@ -73,7 +73,8 @@ function JSProlog(envsettings) {
     q = new Body(q);
     if (envsettings.getShowparse()) {
       print("Query is: ");
-      q.print();
+      //q.print();
+      print(q);
       print("\n\n");
     }
 
@@ -117,7 +118,7 @@ function JSProlog(envsettings) {
       for (var i = 0; i < which.length; i++) {
         print(which[i].name);
         print(" = ");
-        (value(new Variable(which[i].name + ".0"), environment)).print();
+        print(value(new Variable(which[i].name + ".0"), environment));
         print("\n");
       }
     }
@@ -342,22 +343,16 @@ function JSProlog(envsettings) {
 
   function Variable(head) {
     this.name = head;
-    this.print = Variable_print;
     this.toString = Variable_toString;
     this.type = "Variable";
   }
 
-  function Variable_print() {
-    print(this.toString());
-  };
-  
   function Variable_toString() {
     return '' + this.name;
   };
 
   function Atom(head) {
     this.name = head;
-    this.print = Atom_print ;
     this.toString = Atom_toString;
     this.type = "Atom";
   }
@@ -366,14 +361,9 @@ function JSProlog(envsettings) {
     return '' + this.name;
   }
 
-  function Atom_print() {
-    print(this.toString());
-  }
-  
   function Term(head, list) {
     this.name = head;
     this.partlist = new Partlist(list);
-    this.print = Term_print;
     this.toString = Term_toString;
     this.type = "Term";
   }
@@ -408,40 +398,9 @@ function JSProlog(envsettings) {
     ret.push(")");
     return ret.joinb();
   }
-
-  function Term_print() {
-    if (this.name == "cons") {
-      var x = this;
-      while (x.type == "Term" && x.name == "cons" && x.partlist.list.length == 2) {
-        x = x.partlist.list[1];
-      }
-      if ((x.type == "Atom" && x.name == "nil") || x.type == "Variable") {
-        x = this;
-        print("[");
-        var com = false;
-        while (x.type == "Term" && x.name == "cons" && x.partlist.list.length == 2) {
-          if (com) print(", ");
-          x.partlist.list[0].print();
-          com = true;
-          x = x.partlist.list[1];
-        }
-        if (x.type == "Variable") {
-          print(" | ");
-          x.print();
-        }
-        print("]");
-        return;
-      }
-    }
-    print("" + this.name + "(");
-    this.partlist.print();
-    print(")");
-  }
-
   
   function Partlist(list) {
     this.list = list;
-    this.print = Partlist_print;
     this.toString = Partlist_toString;
   }
 
@@ -455,17 +414,8 @@ function JSProlog(envsettings) {
     return ret.joinb();
   }
   
-  function Partlist_print() {
-    for (var i = 0; i < this.list.length; i++) {
-      this.list[i].print();
-      if (i < this.list.length - 1)
-        print(", ");
-    }
-  }
-  
   function Body(list) {
     this.list = list;
-    this.print = Body_print;
     this.toString = Body_toString;
   }
   function Body_toString() {
@@ -477,16 +427,6 @@ function JSProlog(envsettings) {
     }
     return ret.joinb();
   }
-  function Body_print() {
-    for (var i = 0; i < this.list.length; i++) {
-      this.list[i].print();
-      if (i < this.list.length - 1)
-        print(", ");
-    }
-  }
-  function Rule(head) {
-    return new Rule(head, null);
-  }
 
   function Rule(head, bodylist) {
     this.head = head;
@@ -495,7 +435,6 @@ function JSProlog(envsettings) {
     else
       this.body = null;
 
-    this.print = Rule_print;
     this.toString = Rule_toString;
   }
   function Rule_toString() {
@@ -511,18 +450,6 @@ function JSProlog(envsettings) {
     }
     return ret.joinb();
   }
-  function Rule_print() {
-    if (this.body) {
-      this.head.print();
-      print(" :- ");
-      this.body.print();
-      print(".\n");
-    } else {
-      this.head.print();
-      print(".\n");
-    }
-  }
-
   // The Tiny-Prolog parser goes here.
 
   function Tokeniser(strarray) {
